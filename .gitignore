@@ -1,0 +1,5 @@
+dump.rdb
+*.pdf
+__pycache__/
+.env
+node_modules/
