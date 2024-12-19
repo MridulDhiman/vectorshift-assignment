@@ -21,7 +21,7 @@ CLIENT_SECRET="XXX"
 REDIS_HOST="localhost"
 REDIS_PASSWORD="hawk_tuah"
 ```
-- After successful OAuth authentication, Hubspot makes HTTP GET call to our `/integrations/hubspot/oauthcallback`. Here, we check if the request has `code` query parameter, otherwise return Bad Request status code. Verify the state returned against the encoded state in the redis to ensure valid authentication. 
+- After successful OAuth authentication, Hubspot makes HTTP GET call to our `/integrations/hubspot/oauth2callback`. Here, we check if the request has `code` query parameter, otherwise return Bad Request status code. Verify the state returned against the encoded state in the redis to ensure valid authentication. 
 
 - After successful Authentication, save the credentials(access and refresh tokens) in the KV Store.
 - Using Valid Credentials, list the contacts from hubspot, serialize the individual contact to `IntegrationItem` and return list of `IntegrationItem`. 
