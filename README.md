@@ -1,27 +1,84 @@
-## FastAPI Hubspot, Airtable, Notion OAuth Integration
+# VectorShift Integrations Technical Assessment
 
-### Steps and Workflow:
+## Overview
+This project implements OAuth integrations with HubSpot, Airtable, and Notion using FastAPI backend and React frontend. The main focus is on implementing the HubSpot OAuth flow and data retrieval.
 
-- Create New HubSpot App with name, description and logo.
-- In the Auth tab, set the Redirect URI and scopes for the OAuth integration.
-- Register the Callback URL for your application.
-- Fetch the `CLIENT_ID` and `CLIENT_SECRET` after saving changes and save in `/backend/.env`
-
-```bash
-CLIENT_ID="XXX"
-CLIENT_SECRET="XXX"
+## Project Structure
+```
+/
+├── frontend/
+│   └── src/
+│       └── integrations/
+│           ├── airtable.js
+│           ├── notion.js
+│           └── hubspot.js
+└── backend/
+    └── integrations/
+        ├── airtable.py
+        ├── notion.py
+        └── hubspot.py
 ```
 
-- Create Developer Test Account from the dashboard itself for allowing HubSpot to be used in your application.
-- To prevent from CSRF attacks, we provide URL safe string to the state in the query parameters of the authorization URL, we can save that state either to session or redis. Here, we are using redis to manage json encoded hubspot state in the `hubspot_state_{org_id}_{user_id}` key.
+## Setup Instructions
 
-- Redis server is running on upstash service, so start a new redis server on upstash and load the `REDIS_HOST` and `REDIS_PASSWORD` in the environment variables.
+### Environment Variables
+Create a `.env` file in the `/backend` directory:
 
 ```bash
-REDIS_HOST="localhost"
-REDIS_PASSWORD="hawk_tuah"
+CLIENT_ID="your_hubspot_client_id"
+CLIENT_SECRET="your_hubspot_client_secret"
+REDIS_HOST="your_redis_host"
+REDIS_PASSWORD="your_redis_password"
 ```
-- After successful OAuth authentication, Hubspot makes HTTP GET call to our `/integrations/hubspot/oauth2callback`. Here, we check if the request has `code` query parameter, otherwise return Bad Request status code. Verify the state returned against the encoded state in the redis to ensure valid authentication. 
 
-- After successful Authentication, save the credentials(access and refresh tokens) in the KV Store.
-- Using Valid Credentials, list the contacts from hubspot, serialize the individual contact to `IntegrationItem` and return list of `IntegrationItem`. 
+### Redis Configuration
+- Redis is used for state management in the OAuth flow
+- The project uses Upstash (https://upstash.com/) for Redis hosting
+- TLS/SSL encryption is configured by default
+- States are stored with key format: `hubspot_state_{org_id}_{user_id}`
+
+### HubSpot App Configuration
+1. Create a new HubSpot app with:
+   - App name, description, and logo
+   - Configure OAuth settings in Auth tab
+   - Set Redirect URI and required scopes
+   - Register Callback URL
+2. Get `CLIENT_ID` and `CLIENT_SECRET` from app settings
+3. Create a Developer Test Account for testing
+
+## Running the Application
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+## OAuth Flow Implementation
+1. The authorization URL includes a CSRF-safe state parameter
+2. State is stored in Redis for validation
+3. HubSpot redirects to `/integrations/hubspot/oauth2callback`
+4. Callback handler:
+   - Validates `code` parameter
+   - Verifies state against Redis
+   - Exchanges code for access/refresh tokens
+   - Stores credentials in KV store
+
+## Data Retrieval
+- After authentication, the system fetches contacts from HubSpot
+- Contact data is serialized to `IntegrationItem` format
+- Results can be viewed in console output
+
+
+## Security Considerations
+- CSRF protection implemented via state parameter
+- Secure credential storage in KV store
+- TLS/SSL encryption for Redis communication
