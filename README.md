@@ -1,4 +1,4 @@
-# VectorShift Integrations Technical Assessment
+# Hubspot, Airtable, Notion OAuth Integration
 
 ## Overview
 This project implements OAuth integrations with HubSpot, Airtable, and Notion using FastAPI backend and React frontend. The main focus is on implementing the HubSpot OAuth flow and data retrieval.
